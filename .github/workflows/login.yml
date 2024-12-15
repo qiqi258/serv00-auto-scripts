@@ -11,25 +11,32 @@ env:
 
 jobs:  
   login:  
-    runs-on: ubuntu-latest  
-  
+    runs-on: ubuntu-22.04  # 使用一个已知可以工作的 Ubuntu 版本
+
     steps:  
       - name: Checkout repository  
         uses: actions/checkout@v3  
-  
+
       - name: Set up Node.js  
         uses: actions/setup-node@v3  
         with:  
           node-version: '20.x'  
-  
+
       - name: Install dependencies  
         run: npm install puppeteer  
-  
+
       - name: Create accounts.json  
         run: echo "$ACCOUNTS_JSON" > accounts.json  
-  
+
+      - name: Install Xvfb and other dependencies  
+        run: |
+          sudo apt-get update && sudo apt-get install -y xvfb libnss3 libgtk-3-0 libxshmfence1
+
+      - name: Start Xvfb  
+        run: |
+          Xvfb :99 -screen 0 1280x1024x24 & export DISPLAY=:99
+
       - name: Login to website  
         run: |  
           set -e  
           xvfb-run --server-args="-screen 0 1280x1024x24" node login.js
-
