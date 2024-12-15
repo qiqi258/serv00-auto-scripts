@@ -1,23 +1,13 @@
-
-name: Serv00/CT8 Login Tasks
+name: Login
 
 on:
   workflow_dispatch:
+  
   schedule:
     - cron: "14 13 1 * *"  # 每月1号，运行时间为13:14
-  # push:
-  #   paths-ignore:
-  #     - "LICENSE"
-  #     - "README.md"
-  #     - "README_**"
-  #     - "README-**"
-  #   branches:
-  #     - main
 
 env:
   ACCOUNTS_JSON: ${{ secrets.ACCOUNTS_JSON }}
-  TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-  TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
 jobs:  
   login:  
@@ -25,20 +15,20 @@ jobs:
   
     steps:  
       - name: Checkout repository  
-        uses: actions/checkout@v4
-
-      - name: Create accounts.json
-        run: echo "$ACCOUNTS_JSON" > accounts.json
+        uses: actions/checkout@v3  
   
       - name: Set up Node.js  
-        uses: actions/setup-node@v4  
+        uses: actions/setup-node@v3  
         with:  
           node-version: '20.x'  
   
       - name: Install dependencies  
-        run: npm install puppeteer axios
+        run: npm install puppeteer  
   
-      - name: Login into Serv00/CT8
+      - name: Create accounts.json  
+        run: echo "$ACCOUNTS_JSON" > accounts.json  
+  
+      - name: Login to website  
         run: |  
           set -e  
-          xvfb-run --server-args="-screen 0 1280x1024x24" node src/main.js
+          xvfb-run --server-args="-screen 0 1280x1024x24" node login.js
