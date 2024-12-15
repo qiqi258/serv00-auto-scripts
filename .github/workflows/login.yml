@@ -11,7 +11,7 @@ env:
 
 jobs:  
   login:  
-    runs-on: ubuntu-22.04  # 使用一个已知可以工作的 Ubuntu 版本
+    runs-on: ubuntu-22.04
 
     steps:  
       - name: Checkout repository  
@@ -32,11 +32,20 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get install -y xvfb libnss3 libgtk-3-0 libxshmfence1
 
-      - name: Start Xvfb  
+      - name: Verify Xvfb installation
         run: |
-          Xvfb :99 -screen 0 1280x1024x24 & export DISPLAY=:99
+          which Xvfb
+          Xvfb -help
 
-      - name: Login to website  
-        run: |  
-          set -e  
-          xvfb-run --server-args="-screen 0 1280x1024x24" node login.js
+      - name: Start Xvfb with verbose logging
+        run: |
+          sudo Xvfb :99 -screen 0 1280x1024x24 -ac -fp /usr/share/fonts/X11/misc -log-file xvfb.log -listen tcp &
+          export DISPLAY=:99
+          sleep 5  # Give Xvfb some time to start up
+          cat xvfb.log  # Print the log file for debugging purposes
+
+      - name: Login to website with error logging
+        run: |
+          set -e
+          xvfb-run --server-args="-screen 0 1280x1024x24" -e xvfb-error.log node login.js
+          cat xvfb-error.log  # Print the error log for debugging purposes
